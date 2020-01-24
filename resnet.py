@@ -1,4 +1,3 @@
-import numpy as np
 import tensorflow as tf
 
 
@@ -105,60 +104,159 @@ def identity_block(self, tensor, f, filters, stage, block):
     params['out'] = A
     return A, params
 
+    def convolutional_block(self, tensor, f, filters, stage, block, s=2):
+        """
+        Implementing a ResNet convolutional block with shortcut path
+        passing over 3 Conv Layers having different sizes
+        @params
+        X - input tensor of shape (m, in_H, in_W, in_C)
+        f - size of middle layer filter
+        filters - tuple of number of filters in 3 layers
+        stage - used to name the layers
+        block - used to name the layers
+        s - strides used in first layer of convolutional block
+        @returns
+        A - Output of convolutional_block
+        params - Params used in convolutional block
+        """
 
-def convolutional_block(self, tensor, f, filters, stage, block, s=2):
-    """
-    Implementing a ResNet convolutional block with shortcut path
-    passing over 3 Conv Layers having different sizes
-    @params
-    X - input tensor of shape (m, in_H, in_W, in_C)
-    f - size of middle layer filter
-    filters - tuple of number of filters in 3 layers
-    stage - used to name the layers
-    block - used to name the layers
-    s - strides used in first layer of convolutional block
-    @returns
-    A - Output of convolutional_block
-    params - Params used in convolutional block
-    """
+        conv_name = 'res' + str(stage) + block + '_branch'
+        bn_name = 'bn' + str(stage) + block + '_branch'
 
-    conv_name = 'res' + str(stage) + block + '_branch'
-    bn_name = 'bn' + str(stage) + block + '_branch'
+        l1_f, l2_f, l3_f = filters
 
-    l1_f, l2_f, l3_f = filters
+        params = {}
 
-    params = {}
+        A1, params[conv_name+'2a'] = \
+            self.conv2D(tensor, filters=l1_f, k_size=(1, 1), strides=(s, s),
+                        padding='VALID', name=conv_name+'2a')
+        A1_bn = self.batch_norm(A1, name=bn_name+'2a')
+        A1_act = tf.nn.relu(A1_bn)
+        params[conv_name+'2a']['bn'] = A1_bn
+        params[conv_name+'2a']['act'] = A1_bn
 
-    A1, params[conv_name+'2a'] = \
-        self.conv2D(tensor, filters=l1_f, k_size=(1, 1), strides=(s, s),
-                    padding='VALID', name=conv_name+'2a')
-    A1_bn = self.batch_norm(A1, name=bn_name+'2a')
-    A1_act = tf.nn.relu(A1_bn)
-    params[conv_name+'2a']['bn'] = A1_bn
-    params[conv_name+'2a']['act'] = A1_bn
+        A2, params[conv_name+'2b'] = \
+            self.conv2D(A1_act, filters=l2_f, k_size=(f, f), strides=(1, 1),
+                        padding='SAME', name=conv_name+'2b')
+        A2_bn = self.batch_norm(A2, name=bn_name+'2b')
+        A2_act = tf.nn.relu(A2_bn)
+        params[conv_name+'2b']['bn'] = A2_bn
+        params[conv_name+'2b']['act'] = A2_act
 
-    A2, params[conv_name+'2b'] = \
-        self.conv2D(A1_act, filters=l2_f, k_size=(f, f), strides=(1, 1),
-                    padding='SAME', name=conv_name+'2b')
-    A2_bn = self.batch_norm(A2, name=bn_name+'2b')
-    A2_act = tf.nn.relu(A2_bn)
-    params[conv_name+'2b']['bn'] = A2_bn
-    params[conv_name+'2b']['act'] = A2_act
+        A3, params[conv_name+'2c'] = \
+            self.conv2D(A2_act, filters=l3_f, k_size=(1, 1), strides=(1, 1),
+                        padding='VALID', name=conv_name+'2c')
+        A3_bn = self.batch_norm(A3, name=bn_name+'2c')
+        params[conv_name+'2c']['bn'] = A3_bn
 
-    A3, params[conv_name+'2c'] = \
-        self.conv2D(A2_act, filters=l3_f, k_size=(1, 1), strides=(1, 1),
-                    padding='VALID', name=conv_name+'2c')
-    A3_bn = self.batch_norm(A3, name=bn_name+'2c')
-    params[conv_name+'2c']['bn'] = A3_bn
+        A_, params[conv_name+'1'] = \
+            self.conv2D(tensor, filters=l3_f, k_size=(1, 1), strides=(s, s),
+                        padding='VALID', name=conv_name+'1')
+        A_bn_ = self.batch_norm(A_, name=bn_name+'1')
 
-    A_, params[conv_name+'1'] = \
-        self.conv2D(tensor, filters=l3_f, k_size=(1, 1), strides=(s, s),
-                    padding='VALID', name=conv_name+'1')
-    A_bn_ = self.batch_norm(A_, name=bn_name+'1')
+        A3_add = tf.add(A3_bn, A_bn_)
+        A = tf.nn.relu(A3_add)
+        params[conv_name+'2c']['add'] = A3_add
+        params[conv_name+'1']['bn'] = A_bn_
+        params['out'] = A
+        return A, params
 
-    A3_add = tf.add(A3_bn, A_bn_)
-    A = tf.nn.relu(A3_add)
-    params[conv_name+'2c']['add'] = A3_add
-    params[conv_name+'1']['bn'] = A_bn_
-    params['out'] = A
-    return A, params
+    def ResNet50(self, input_shape=[64, 64, 3], classes=2):
+
+        input_shape = [None] + input_shape
+        params = {}
+
+        X_input = tf.placeholder(
+            tf.float32, shape=input_shape, name='input_layer')
+
+        X = self.zero_padding(X_input, (3, 3))
+        params['input'] = X_input
+        params['zero_pad'] = X
+
+        # Stage 1
+        params['stage1'] = {}
+        A_1, params['stage1']['conv'] = \
+            self.conv2D(X, filters=64, k_size=(7, 7), strides=(2, 2),
+                        padding='VALID', name='conv1')
+        A_1_bn = self.batch_norm(A_1, name='bn_conv1')
+        A_1_act = tf.nn.relu(A_1_bn)
+        A_1_pool = tf.nn.max_pool(A_1_act, ksize=(1, 3, 3, 1),
+                                  strides=(1, 2, 2, 1),
+                                  padding='VALID')
+        params['stage1']['bn'] = A_1_bn
+        params['stage1']['act'] = A_1_act
+        params['stage1']['pool'] = A_1_pool
+
+        # Stage 2
+        params['stage2'] = {}
+        A_2_cb, params['stage2']['cb'] = \
+            self.convolutional_block(A_1_pool, f=3, filters=[64, 64, 256],
+                                     stage=2, block='a', s=1)
+        A_2_ib1, params['stage2']['ib1'] = \
+            self.identity_block(A_2_cb, f=3, filters=[64, 64, 256],
+                                stage=2, block='b')
+        A_2_ib2, params['stage2']['ib2'] = \
+            self.identity_block(A_2_ib1, f=3, filters=[64, 64, 256],
+                                stage=2, block='c')
+
+        # Stage 3
+        params['stage3'] = {}
+        A_3_cb, params['stage3']['cb'] = \
+            self.convolutional_block(A_2_ib2, 3, [128, 128, 512],
+                                     stage=3, block='a', s=2)
+        A_3_ib1, params['stage3']['ib1'] = \
+            self.identity_block(A_3_cb, 3, [128, 128, 512],
+                                stage=3, block='b')
+        A_3_ib2, params['stage3']['ib2'] = \
+            self.identity_block(A_3_ib1, 3, [128, 128, 512],
+                                stage=3, block='c')
+        A_3_ib3, params['stage3']['ib3'] = \
+            self.identity_block(A_3_ib2, 3, [128, 128, 512],
+                                stage=3, block='d')
+
+        # Stage 4
+        params['stage4'] = {}
+        A_4_cb, params['stage4']['cb'] = \
+            self.convolutional_block(A_3_ib3, 3, [256, 256, 1024],
+                                     stage=4, block='a', s=2)
+        A_4_ib1, params['stage4']['ib1'] = \
+            self.identity_block(A_4_cb, 3, [256, 256, 1024],
+                                stage=4, block='b')
+        A_4_ib2, params['stage4']['ib2'] = \
+            self.identity_block(A_4_ib1, 3, [256, 256, 1024],
+                                stage=4, block='c')
+        A_4_ib3, params['stage4']['ib3'] = \
+            self.identity_block(A_4_ib2, 3, [256, 256, 1024],
+                                stage=4, block='d')
+        A_4_ib4, params['stage4']['ib4'] = \
+            self.identity_block(A_4_ib3, 3, [256, 256, 1024],
+                                stage=4, block='e')
+        A_4_ib5, params['stage4']['ib5'] = \
+            self.identity_block(A_4_ib4, 3, [256, 256, 1024],
+                                stage=4, block='f')
+
+        # Stage 5
+        params['stage5'] = {}
+        A_5_cb, params['stage5']['cb'] = \
+            self.convolutional_block(A_4_ib5, 3, [512, 512, 2048],
+                                     stage=5, block='a', s=2)
+        A_5_ib1, params['stage5']['ib1'] = \
+            self.identity_block(A_5_cb, 3, [512, 512, 2048],
+                                stage=5, block='b')
+        A_5_ib2, params['stage5']['ib2'] = \
+            self.identity_block(A_5_ib1, 3, [512, 512, 2048],
+                                stage=5, block='c')
+
+        # Average Pooling
+        A_avg_pool = tf.nn.avg_pool(A_5_ib2, ksize=(1, 2, 2, 1),
+                                    strides=(1, 2, 2, 1),
+                                    padding='VALID', name='avg_pool')
+        params['avg_pool'] = A_avg_pool
+
+        # Output Layer
+        A_flat = self.flatten(A_avg_pool)
+        params['flatten'] = A_flat
+        A_out, params['out'] = self.dense(
+            A_flat, classes, name='fc'+str(classes))
+
+        return A_out, params
