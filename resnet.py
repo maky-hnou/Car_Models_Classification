@@ -2,8 +2,9 @@ import tensorflow as tf
 
 
 class ResNet:
-    def __init__(self):
-        pass
+    def __init__(self, input_shape=[64, 64, 3], categories=2):
+        self.input_shape = input_shape
+        self.categories = categories
 
     def get_weights(self, shape, name):
         return tf.get_variable(name, shape=shape)
@@ -161,9 +162,9 @@ def identity_block(self, tensor, f, filters, stage, block):
         params['out'] = A
         return A, params
 
-    def ResNet50(self, input_shape=[64, 64, 3], classes=2):
+    def ResNet50(self):
 
-        input_shape = [None] + input_shape
+        input_shape = [None] + self.input_shape
         params = {}
 
         X_input = tf.placeholder(
@@ -257,6 +258,6 @@ def identity_block(self, tensor, f, filters, stage, block):
         A_flat = self.flatten(A_avg_pool)
         params['flatten'] = A_flat
         A_out, params['out'] = self.dense(
-            A_flat, classes, name='fc'+str(classes))
+            A_flat, self.categories, name='fc'+str(self.categories))
 
         return A_out, params
