@@ -1,26 +1,132 @@
+"""Build the ResNet50 model."""
 import tensorflow as tf
 
 
 class ResNet:
+    """Build the ResNet CNN.
+
+    Parameters
+    ----------
+    input_shape : list
+        The shape of the input data.
+    categories : int
+        The number of categories.
+
+    Attributes
+    ----------
+    input_shape
+    categories
+
+    """
+
     def __init__(self, input_shape=[64, 64, 3], categories=2):
+        """Initialize the variables.
+
+        Parameters
+        ----------
+        input_shape : list
+            The shape of the input data.
+        categories : int
+            The number of categories.
+
+        Returns
+        -------
+        None
+
+        """
         self.input_shape = input_shape
         self.categories = categories
 
     def get_weights(self, shape, name):
+        """Create weights.
+
+        Parameters
+        ----------
+        shape : tuple
+            The shape of the weights.
+        name : str
+            The name of the weights.
+
+        Returns
+        -------
+        tf tensor
+            A tensor containing the weights.
+
+        """
         return tf.get_variable(name, shape=shape)
 
     def get_bias(self, shape, name):
+        """Create bias.
+
+        Parameters
+        ----------
+        shape : tuple
+            The shape of the bias.
+        name : str
+            The name of the bias.
+
+        Returns
+        -------
+        tf tensor
+            A tensor containing the bias.
+
+        """
         return tf.zeros(shape=shape, name=name)
 
     def zero_padding(self, tensor, pad=(3, 3)):
+        """Pad an input tensor.
+
+        Parameters
+        ----------
+        tensor : tf tensor
+            The tensor to be padded.
+        pad : tuple
+            The shape of the padding tensor.
+
+        Returns
+        -------
+        tf tensor
+            A padded tensor.
+
+        """
         paddings = tf.constant([[0, 0], [pad[0], pad[0]],
                                 [pad[1], pad[1]], [0, 0]])
         return tf.pad(tensor, paddings, 'CONSTANT')
 
     def flatten(self, tensor):
+        """Flatten an input tensor.
+
+        Parameters
+        ----------
+        tensor : tf tensor
+            The input tensor to be flattened.
+
+        Returns
+        -------
+        tf tensor
+            The flattened tensor.
+
+        """
         return tf.contrib.layers.flatten(tensor)
 
     def dense(self, tensor, out, name):
+        """Create a Fully Connected Layer.
+
+        Parameters
+        ----------
+        tensor : tf tensor
+            The input tensor.
+        out : int
+            The number of categories.
+        name : str
+            The name of the output tensor.
+
+        Returns
+        -------
+        tf tensor
+            The output of the Fully Connected Layer.
+
+        """
         in_prev = tensor.shape.as_list()[1]
         W = self.get_weights((in_prev, out), name=name+'_W')
         b = self.get_bias((1, out), name=name+'_b')
