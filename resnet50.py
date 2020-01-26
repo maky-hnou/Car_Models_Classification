@@ -136,6 +136,31 @@ class ResNet:
         return A, params
 
     def conv2D(self, A_prev, filters, k_size, strides, padding, name):
+        """Apply 2D convolution.
+
+        Parameters
+        ----------
+        A_prev : tf tensor
+            The input tensor.
+        filters : tuple
+            A tuple of the number of filters per layer.
+        k_size : tuple
+            The size of the kernel.
+        strides : tuple
+            The number of strides.
+        padding : str
+            The type of padding algorithm to use.
+        name : str
+            A name for the operation.
+
+        Returns
+        -------
+        tf tensor
+            The convolved tensor.
+        dict
+            The dictionary that contains the params.
+
+        """
         m, in_H, in_W, in_C = A_prev.shape.as_list()
 
         w_shape = (k_size[0], k_size[1], in_C, filters)
@@ -152,28 +177,53 @@ class ResNet:
         return A, params
 
     def batch_norm(self, tensor, name):
+        """Normalize an input tensor.
+
+        Parameters
+        ----------
+        tensor : tf tensor
+            The input tensor.
+        name : str
+            A name for the operation.
+
+        Returns
+        -------
+        tf tensor
+            The normalized tensor.
+
+        """
         m_, v_ = tf.nn.moments(tensor, axes=[0, 1, 2], keep_dims=False)
         beta_ = tf.zeros(tensor.shape.as_list()[3])
         gamma_ = tf.ones(tensor.shape.as_list()[3])
         bn = tf.nn.batch_normalization(tensor, mean=m_, variance=v_,
                                        offset=beta_, scale=gamma_,
-                                       variance_epsilon=1e-4)
+                                       variance_epsilon=1e-4, name=name)
         return bn
 
 
 def identity_block(self, tensor, f, filters, stage, block):
-    """
-    Implementing a ResNet identity block with shortcut path
-    passing over 3 Conv Layers
-    @params
-    X - input tensor of shape (m, in_H, in_W, in_C)
-    f - size of middle layer filter
-    filters - tuple of number of filters in 3 layers
-    stage - used to name the layers
-    block - used to name the layers
-    @returns
-    A - Output of identity_block
-    params - Params used in identity block
+    """Implement identity block with shortcut path passing over 3 Conv Layers.
+
+    Parameters
+    ----------
+    tensor : tf tensor
+        The input tensor of shape (m, in_H, in_W, in_C).
+    f : int
+        The size of middle layer filter.
+    filters : tuple
+        The number of filters in 3 layers.
+    stage : str
+        Used to name the layers.
+    block : str
+        Used to name the layers.
+
+    Returns
+    -------
+    tf tensor
+        The output of identity block.
+    dict
+        The dictionary of parameters
+
     """
 
     conv_name = 'res' + str(stage) + block + '_branch'
