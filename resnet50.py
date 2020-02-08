@@ -222,10 +222,9 @@ def identity_block(self, tensor, f, filters, stage, block):
     tf tensor
         The output of identity block.
     dict
-        The dictionary of parameters
+        The dictionary of parameters.
 
     """
-
     conv_name = 'res' + str(stage) + block + '_branch'
     bn_name = 'bn' + str(stage) + block + '_branch'
 
@@ -262,21 +261,29 @@ def identity_block(self, tensor, f, filters, stage, block):
     return A, params
 
     def convolutional_block(self, tensor, f, filters, stage, block, s=2):
-        """
-        Implementing a ResNet convolutional block with shortcut path
-        passing over 3 Conv Layers having different sizes
-        @params
-        X - input tensor of shape (m, in_H, in_W, in_C)
-        f - size of middle layer filter
-        filters - tuple of number of filters in 3 layers
-        stage - used to name the layers
-        block - used to name the layers
-        s - strides used in first layer of convolutional block
-        @returns
-        A - Output of convolutional_block
-        params - Params used in convolutional block
-        """
+        """Implement ResNet conv block with shortcut path over 3 Conv Layers.
 
+        Parameters
+        ----------
+        tensor : tf tensor
+            The input tensor of shape (m, in_H, in_W, in_C).
+        f : int
+            The size of middle layer filter.
+        filters : tuple
+            The number of filters in 3 layers.
+        stage : str
+            Used to name the layers.
+        block : str
+            Used to name the layers.
+
+        Returns
+        -------
+        tf tensor
+            The output of identity block.
+        dict
+            The dictionary of parameters.
+
+        """
         conv_name = 'res' + str(stage) + block + '_branch'
         bn_name = 'bn' + str(stage) + block + '_branch'
 
