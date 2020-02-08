@@ -220,7 +220,7 @@ def identity_block(self, tensor, f, filters, stage, block):
     Returns
     -------
     tf tensor
-        The output of identity block.
+        The output of the identity block.
     dict
         The dictionary of parameters.
 
@@ -279,7 +279,7 @@ def identity_block(self, tensor, f, filters, stage, block):
         Returns
         -------
         tf tensor
-            The output of identity block.
+            The output of the convolutional block.
         dict
             The dictionary of parameters.
 
@@ -326,7 +326,16 @@ def identity_block(self, tensor, f, filters, stage, block):
         return A, params
 
     def ResNet50(self):
+        """Build the model.
 
+        Returns
+        -------
+        tf tensor
+            The output of the model.
+        dict
+            The dictionary of parameters.
+
+        """
         input_shape = [None] + self.input_shape
         params = {}
 
