@@ -74,36 +74,36 @@ class Train:
             optimizer = tf.train.AdamOptimizer(
                 self.learning_rate).minimize(loss)
 
-            # saver to save the trained model
-            saver = tf.train.Saver()
+        # saver to save the trained model
+        saver = tf.train.Saver()
 
-            # Set configs
-            config = tf.ConfigProto()
-            config.gpu_options.allow_growth = True
-            # train the graph
-            with tf.Session(graph=graph, config=config) as session:
-                session.run(tf.initialize_all_variables())
-                try:
-                    for epoch in range(self.num_epochs):
-                        for step in range(num_steps):
-                            offset = (
-                                step * self.batch_size) % (num_images -
-                                                           self.batch_size)
-                            batch_data = self.train_x[offset:(
-                                offset + self.batch_size), :, :, :]
-                            batch_labels = self.train_y[offset:(
-                                offset + self.batch_size), :]
-                            feed_dict = {train_maps_raw: batch_data,
-                                         train_labels: batch_labels}
-                            _, l, predictions = session.run(
-                                [optimizer, loss], feed_dict=feed_dict)
-                        print('Epoch %2d/%2d:\n\t'
-                              'Train Loss = %.2f\t '
-                              'Accuracy = %.2f%%'
-                              % (epoch+1, self.num_epochs, l,
-                                 self.accuracy(predictions, batch_labels)))
-                except Exception as e:
-                    print('exception:', e)
+        # Set configs
+        config = tf.ConfigProto()
+        config.gpu_options.allow_growth = True
+        # train the graph
+        with tf.Session(graph=graph, config=config) as session:
+            session.run(tf.initialize_all_variables())
+            try:
+                for epoch in range(self.num_epochs):
+                    for step in range(num_steps):
+                        offset = (
+                            step * self.batch_size) % (num_images -
+                                                       self.batch_size)
+                        batch_data = self.train_x[offset:(
+                            offset + self.batch_size), :, :, :]
+                        batch_labels = self.train_y[offset:(
+                            offset + self.batch_size), :]
+                        feed_dict = {train_maps_raw: batch_data,
+                                     train_labels: batch_labels}
+                        _, l, predictions = session.run(
+                            [optimizer, loss], feed_dict=feed_dict)
+                    print('Epoch %2d/%2d:\n\t'
+                          'Train Loss = %.2f\t '
+                          'Accuracy = %.2f%%'
+                          % (epoch+1, self.num_epochs, l,
+                             self.accuracy(predictions, batch_labels)))
+            except Exception as e:
+                print('exception:', e)
             if (self.save_model):
                 # save_path = saver.save(session, 'model.tensorflow')
                 save_path = saver.save(session, 'model/VGG16_modelParams.ckpt')
