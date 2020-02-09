@@ -325,7 +325,7 @@ def identity_block(self, tensor, f, filters, stage, block):
         params['out'] = A
         return A, params
 
-    def ResNet50(self):
+    def build_model(self):
         """Build the model.
 
         Returns
