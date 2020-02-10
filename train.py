@@ -1,3 +1,4 @@
+"""Train the ResNet model."""
 import os
 
 import numpy as np
@@ -6,8 +7,58 @@ from resnet50 import ResNet
 
 
 class TrainModel:
+    """Train the model.
+
+    Parameters
+    ----------
+    train_x : tf tensor
+        The input training data.
+    train_y : tf tensor
+        The training data classes.
+    learning_rate : float
+        The learning rate.
+    num_epochs : int
+        The number of epochs.
+    batch_size : int
+        The size of the batch.
+    save_model : bool
+        Whether to save the model or not.
+
+    Attributes
+    ----------
+    train_x
+    train_y
+    learning_rate
+    num_epochs
+    batch_size
+    save_model
+
+    """
+
     def __init__(self, train_x, train_y, learning_rate=0.001,
                  num_epochs=5000, batch_size=8, save_model=True):
+        """__init__ Constructor.
+
+        Parameters
+        ----------
+        train_x : tf tensor
+            The input training data.
+        train_y : tf tensor
+            The training data classes.
+        learning_rate : float
+            The learning rate.
+        num_epochs : int
+            The number of epochs.
+        batch_size : int
+            The size of the batch.
+        save_model : bool
+            Whether to save the model or not.
+
+        Returns
+        -------
+        None
+
+        """
         self.train_x = train_x
         self.train_y = train_y
         self.learning_rate = learning_rate
@@ -16,6 +67,13 @@ class TrainModel:
         self.save_model = save_model
 
     def train(self):
+        """Train the model and save the weights.
+
+        Returns
+        -------
+        None
+
+        """
         assert len(self.train_x.shape) == 4
         num_images = self.train_x.shape[0]
         num_steps = int(np.ceil(num_images / float(self.batch_size)))
