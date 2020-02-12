@@ -39,3 +39,29 @@ def image_to_npy(filename, path, img_size, json_file_path):
         data.append([np.array(img), label])
     random.shuffle(data)
     np.save('{}_data_gray.npy'.format(filename), data)
+
+
+def label_images(filename, path, json_file_path):
+    """Return the label of a given image existing a given directory.
+
+    Parameters
+    ----------
+    filename : str
+        The filename path.
+    path : str
+        The directory path.
+    json_file_path : str
+        The path of the json file.
+
+    Returns
+    -------
+    list
+        The label of the given image.
+
+    """
+    categories_dict = get_categories_names(json_file_path)
+    classes_number = len(glob.glob(path + '/*'))
+    class_labels = np.identity(classes_number, dtype=int)
+    class_label = list(categories_dict.keys())[
+        list(categories_dict.values()).index(filename.split('/')[-2])]
+    return class_labels[int(class_label) - 1]
