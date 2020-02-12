@@ -113,3 +113,29 @@ def rename_folders(path, json_file_path):
         except OSError:
             print(key, value)
             continue
+
+
+def get_categories_names(json_file_path):
+    """Get folder names and indexes from a json file and put them into a dict.
+
+    Parameters
+    ----------
+    json_file_path : str
+        The path of the json file.
+
+    Returns
+    -------
+    dict
+        A dictionary containing folders names and indexes.
+
+    """
+    folder_names_dict = {}
+    with open(json_file_path, 'r') as foo:
+        for line in foo.readlines():
+            try:
+                folder_index = re.search(r'\d+', line).group()
+                folder_name = re.search(r': "(.*)",', line).group(1)
+                folder_names_dict[folder_index] = folder_name
+            except AttributeError:
+                continue
+    return folder_names_dict
