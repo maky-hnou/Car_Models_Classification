@@ -65,3 +65,27 @@ def label_images(filename, path, json_file_path):
     class_label = list(categories_dict.keys())[
         list(categories_dict.values()).index(filename.split('/')[-2])]
     return class_labels[int(class_label) - 1]
+
+
+def rename_files(path):
+    """Rename files in subdirectores of a given parent directory.
+
+    Parameters
+    ----------
+    path : str
+        The parent directory path.
+
+    Returns
+    -------
+    None
+
+    """
+    for folder in natsorted(glob.glob(path + '/*'), alg=ns.IGNORECASE):
+        i = 1
+        for img in natsorted(glob.glob(folder + '/*'), alg=ns.IGNORECASE):
+            path_parts = img.split('/')
+            class_folder_path = path_parts[:-1]
+            class_number = path_parts[-2]
+            os.rename(img, '/'.join(class_folder_path)
+                      + '/{}_{}.jpg'.format(class_number, i))
+            i += 1
