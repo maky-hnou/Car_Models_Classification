@@ -89,3 +89,27 @@ def rename_files(path):
             os.rename(img, '/'.join(class_folder_path)
                       + '/{}_{}.jpg'.format(class_number, i))
             i += 1
+
+
+def rename_folders(path, json_file_path):
+    """Rename folders.
+
+    Parameters
+    ----------
+    path : str
+        The path of the parent dir.
+    json_file_path : str
+        The path of the json file.
+
+    Returns
+    -------
+    None
+
+    """
+    names_dict = get_categories_names(json_file_path)
+    for key, value in names_dict.items():
+        try:
+            os.rename(os.path.join(path, key), os.path.join(path, value))
+        except OSError:
+            print(key, value)
+            continue
