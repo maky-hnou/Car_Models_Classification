@@ -19,7 +19,7 @@ class ResNet:
 
     """
 
-    def __init__(self, input_shape=[64, 64, 3], categories=2):
+    def __init__(self, input_shape=[64, 64, 3], categories=196):
         """Initialize the variables.
 
         Parameters
@@ -200,65 +200,64 @@ class ResNet:
                                        variance_epsilon=1e-4, name=name)
         return bn
 
+    def identity_block(self, tensor, f, filters, stage, block):
+        """Implement identity block with shortcut path passing over 3 Conv Layers.
 
-def identity_block(self, tensor, f, filters, stage, block):
-    """Implement identity block with shortcut path passing over 3 Conv Layers.
+        Parameters
+        ----------
+        tensor : tf tensor
+            The input tensor of shape (m, in_H, in_W, in_C).
+        f : int
+            The size of middle layer filter.
+        filters : tuple
+            The number of filters in 3 layers.
+        stage : str
+            Used to name the layers.
+        block : str
+            Used to name the layers.
 
-    Parameters
-    ----------
-    tensor : tf tensor
-        The input tensor of shape (m, in_H, in_W, in_C).
-    f : int
-        The size of middle layer filter.
-    filters : tuple
-        The number of filters in 3 layers.
-    stage : str
-        Used to name the layers.
-    block : str
-        Used to name the layers.
+        Returns
+        -------
+        tf tensor
+            The output of the identity block.
+        dict
+            The dictionary of parameters.
 
-    Returns
-    -------
-    tf tensor
-        The output of the identity block.
-    dict
-        The dictionary of parameters.
+        """
+        conv_name = 'res' + str(stage) + block + '_branch'
+        bn_name = 'bn' + str(stage) + block + '_branch'
 
-    """
-    conv_name = 'res' + str(stage) + block + '_branch'
-    bn_name = 'bn' + str(stage) + block + '_branch'
+        l1_f, l2_f, l3_f = filters
 
-    l1_f, l2_f, l3_f = filters
+        params = {}
 
-    params = {}
+        A1, params[conv_name+'2a'] = \
+            self.conv2D(tensor, filters=l1_f, k_size=(1, 1), strides=(1, 1),
+                        padding='VALID', name=conv_name+'2a')
+        A1_bn = self.batch_norm(A1, name=bn_name+'2a')
+        A1_act = tf.nn.relu(A1_bn)
+        params[conv_name+'2a']['bn'] = A1_bn
+        params[conv_name+'2a']['act'] = A1_bn
 
-    A1, params[conv_name+'2a'] = \
-        self.conv2D(tensor, filters=l1_f, k_size=(1, 1), strides=(1, 1),
-                    padding='VALID', name=conv_name+'2a')
-    A1_bn = self.batch_norm(A1, name=bn_name+'2a')
-    A1_act = tf.nn.relu(A1_bn)
-    params[conv_name+'2a']['bn'] = A1_bn
-    params[conv_name+'2a']['act'] = A1_bn
+        A2, params[conv_name+'2b'] = \
+            self.conv2D(A1_act, filters=l2_f, k_size=(f, f), strides=(1, 1),
+                        padding='SAME', name=conv_name+'2b')
+        A2_bn = self.batch_norm(A2, name=bn_name+'2b')
+        A2_act = tf.nn.relu(A2_bn)
+        params[conv_name+'2b']['bn'] = A2_bn
+        params[conv_name+'2b']['act'] = A2_act
 
-    A2, params[conv_name+'2b'] = \
-        self.conv2D(A1_act, filters=l2_f, k_size=(f, f), strides=(1, 1),
-                    padding='SAME', name=conv_name+'2b')
-    A2_bn = self.batch_norm(A2, name=bn_name+'2b')
-    A2_act = tf.nn.relu(A2_bn)
-    params[conv_name+'2b']['bn'] = A2_bn
-    params[conv_name+'2b']['act'] = A2_act
+        A3, params[conv_name+'2c'] = \
+            self.conv2D(A2_act, filters=l3_f, k_size=(1, 1), strides=(1, 1),
+                        padding='VALID', name=conv_name+'2c')
+        A3_bn = self.batch_norm(A3, name=bn_name+'2c')
 
-    A3, params[conv_name+'2c'] = \
-        self.conv2D(A2_act, filters=l3_f, k_size=(1, 1), strides=(1, 1),
-                    padding='VALID', name=conv_name+'2c')
-    A3_bn = self.batch_norm(A3, name=bn_name+'2c')
-
-    A3_add = tf.add(A3_bn, tensor)
-    A = tf.nn.relu(A3_add)
-    params[conv_name+'2c']['bn'] = A3_bn
-    params[conv_name+'2c']['add'] = A3_add
-    params['out'] = A
-    return A, params
+        A3_add = tf.add(A3_bn, tensor)
+        A = tf.nn.relu(A3_add)
+        params[conv_name+'2c']['bn'] = A3_bn
+        params[conv_name+'2c']['add'] = A3_add
+        params['out'] = A
+        return A, params
 
     def convolutional_block(self, tensor, f, filters, stage, block, s=2):
         """Implement ResNet conv block with shortcut path over 3 Conv Layers.
