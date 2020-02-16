@@ -81,7 +81,7 @@ class TrainModel:
         resnet = ResNet()
         Y_hat, model_params = resnet.build_model()
         X = model_params['input']
-        Y_true = tf.placeholder(dtype=tf.float32, shape=[None, 2])
+        Y_true = tf.placeholder(dtype=tf.float32, shape=[None, 196])
         Z = model_params['out']['Z']
 
         # loss function
@@ -111,11 +111,9 @@ class TrainModel:
                         offset + self.batch_size), :]
                     feed_dict = {X: batch_data,
                                  Y_true: batch_labels}
-                    _, l, predictions = session.run(
-                        [optimizer, loss], feed_dict=feed_dict)
-                print('Epoch %2d/%2d:\n\tTrain Loss = %.2f\t Accuracy = %.2f%%'
-                      % (epoch+1, self.num_epochs, l,
-                         self.accuracy(predictions, batch_labels)))
+                    _, l = session.run([optimizer, loss], feed_dict=feed_dict)
+                print('Epoch %2d/%2d:\n\tTrain Loss = %.2f\t'
+                      % (epoch+1, self.num_epochs, l))
             if (self.save_model):
                 os.makedirs('./model/')
                 # save_path = saver.save(session, 'model.tensorflow')
