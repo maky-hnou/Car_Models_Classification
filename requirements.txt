@@ -3,3 +3,4 @@ numpy==1.15.0
 opencv-contrib-python==4.1.2.30
 opencv-python==4.1.2.30
 tensorflow-gpu==1.15.2
+tqdm
