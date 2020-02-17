@@ -201,7 +201,7 @@ class ResNet:
         return bn
 
     def identity_block(self, tensor, f, filters, stage, block):
-        """Implement identity block with shortcut path passing over 3 Conv Layers.
+        """Implement identity block with shortcut path over 3 Conv Layers.
 
         Parameters
         ----------
