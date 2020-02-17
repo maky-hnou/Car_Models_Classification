@@ -111,9 +111,10 @@ class TrainModel:
                         offset + self.batch_size), :]
                     feed_dict = {X: batch_data,
                                  Y_true: batch_labels}
-                    _, l = session.run([optimizer, loss], feed_dict=feed_dict)
+                    _, loss = session.run(
+                        [optimizer, loss], feed_dict=feed_dict)
                 print('Epoch %2d/%2d:\n\tTrain Loss = %.2f\t'
-                      % (epoch+1, self.num_epochs, l))
+                      % (epoch+1, self.num_epochs, loss))
             if (self.save_model):
                 os.makedirs('./model/')
                 # save_path = saver.save(session, 'model.tensorflow')
