@@ -17,3 +17,4 @@ class Test:
         with tf.Session() as session:
             saver.restore(session, self.graph_path)
             category = session.run(Y_hat, feed_dict={X: [self.image]})
+            category = category[:, 1]
