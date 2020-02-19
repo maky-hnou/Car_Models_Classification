@@ -1,4 +1,5 @@
-import cv2
+from test import Test
+
 import numpy as np
 from train import TrainModel
 from utils import image_to_npy
@@ -22,3 +23,10 @@ if (__name__ == '__main__'):
         labels = np.array([i[1] for i in data])
         run_training = TrainModel(train_x=images, train_y=labels)
         run_training.train()
+    elif (action == '3'):
+        print('INFO: Please provide the image to classify and the model path!')
+        image_path = input('image path: ')
+        model_path = input('modelpath: ')
+        run_classification = Test(image_path=image_path, graph_path=model_path)
+        category = run_classification.classify()
+        print(category)
