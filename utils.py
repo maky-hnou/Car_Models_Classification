@@ -1,7 +1,7 @@
 """Utils functions."""
 import glob
+import json
 import random
-import re
 
 import cv2
 import numpy as np
@@ -42,3 +42,14 @@ def image_to_npy(filename, path, img_size):
         data.append([np.array(image), label])
     random.shuffle(data)
     np.save('{}_data.npy'.format(filename), data)
+
+
+def list_categories(path):
+    list_of_categories = [path_.split('/')[-2]
+                          for path_ in natsorted(glob.glob(path + '/*/'),
+                                                 alg=ns.IGNORECASE)]
+    categories = {}
+    for idx, category in enumerate(list_of_categories):
+        categories[str(idx)] = category
+    with open('categories.json', 'w') as fp:
+        json.dump(categories, fp, indent=4, separators=(',', ': '))
