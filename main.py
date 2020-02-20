@@ -2,15 +2,20 @@ from test import Test
 
 import numpy as np
 from train import TrainModel
-from utils import image_to_npy
+from utils import image_to_npy, list_categories
 
 if (__name__ == '__main__'):
     action = input('INFO: Please choose an action:\n'
+                   '0: to create json file of categories.\n'
                    '1: to convert image to npy file.\n'
                    '2: to run the training.\n'
                    '3: to test the model.\n'
                    'action: ')
-    if (action == '1'):
+    if (action == '0'):
+        print('INFO: Please provide the data path')
+        path = input('path to data: ')
+        list_categories(path)
+    elif (action == '1'):
         print('INFO: Please provide the path to the images and the filename')
         path = input('path to the images: ')
         filename = input('the npy filename: ')
@@ -30,3 +35,5 @@ if (__name__ == '__main__'):
         run_classification = Test(image_path=image_path, graph_path=model_path)
         category = run_classification.classify()
         print(category)
+    else:
+        print('ERROR: Wrong choise of action!')
