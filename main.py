@@ -1,3 +1,4 @@
+"""Main file to run all actions from."""
 from test import Test
 
 import numpy as np
