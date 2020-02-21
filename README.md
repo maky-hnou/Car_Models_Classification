@@ -26,16 +26,16 @@ In this repo, I used TensorFlow to build A ResNet50 Neural Network and train it 
 
 **1. Prepare the environment:**  
 *NB: Use python 3+ only.*  
-Before anything, please install the requirements by running: `pip install -r requirements.txt`.  
+Before anything, please install the requirements by running: `pip3 install -r requirements.txt`.  
 
 **2. Prepare the data:**  
 Download the *[Stanford Car Dataset](https://www.kaggle.com/jutrera/stanford-car-dataset-by-classes-folder)*.  
 Extract the zip file. It should be organized as follows:  
 `data/` should contain a folder named `car_data/`, that contains two folders named `train/` and `test/`.  
-Convert the training data to npy file and prepare the labels file by running `python main.py` and following the instructions.  
+Convert the training data to npy file and prepare the labels file by running `python3 main.py` and following the instructions.  
 
 **3. Train and test the ResNet model:** (*from scratch*)
-To run both training and testing, you need to run `python main.py` then follow the instructions.  
+To run both training and testing, you need to run `python3 main.py` then follow the instructions.  
 
 
 [python-version]:https://img.shields.io/badge/python-3.6+-brightgreen.svg
