@@ -37,28 +37,6 @@ class TrainModel:
 
     def __init__(self, train_x, train_y, learning_rate=0.001,
                  num_epochs=5000, batch_size=8, save_model=True):
-        """__init__ Constructor.
-
-        Parameters
-        ----------
-        train_x : tf tensor
-            The input training data.
-        train_y : tf tensor
-            The training data classes.
-        learning_rate : float
-            The learning rate.
-        num_epochs : int
-            The number of epochs.
-        batch_size : int
-            The size of the batch.
-        save_model : bool
-            Whether to save the model or not.
-
-        Returns
-        -------
-        None
-
-        """
         self.train_x = train_x
         self.train_y = train_y
         self.learning_rate = learning_rate
