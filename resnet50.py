@@ -20,20 +20,6 @@ class ResNet:
     """
 
     def __init__(self, input_shape=[64, 64, 3], categories=196):
-        """Initialize the variables.
-
-        Parameters
-        ----------
-        input_shape : list
-            The shape of the input data.
-        categories : int
-            The number of categories.
-
-        Returns
-        -------
-        None
-
-        """
         self.input_shape = input_shape
         self.categories = categories
 
