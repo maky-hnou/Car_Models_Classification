@@ -45,6 +45,18 @@ def image_to_npy(filename, path, img_size):
 
 
 def list_categories(path):
+    """write the list of categories to a json file.
+
+    Parameters
+    ----------
+    path : str
+        The path to the images folders.
+
+    Returns
+    -------
+    None.
+
+    """
     list_of_categories = [path_.split('/')[-2]
                           for path_ in natsorted(glob.glob(path + '/*/'),
                                                  alg=ns.IGNORECASE)]
