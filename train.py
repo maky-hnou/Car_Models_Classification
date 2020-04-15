@@ -65,18 +65,19 @@ class TrainModel:
         # loss function
         cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=Z,
                                                                 labels=Y_true)
-        loss = tf.reduce_mean(cross_entropy)
+        loss_function = tf.reduce_mean(cross_entropy)
         # optimizer
-        optimizer = tf.train.AdamOptimizer(self.learning_rate).minimize(loss)
+        optimizer = tf.compat.v1.train.AdamOptimizer(
+            self.learning_rate).minimize(loss_function)
         # saver to save the trained model
-        saver = tf.train.Saver()
+        saver = tf.compat.v1.train.Saver()
 
         # Set configs
-        config = tf.ConfigProto()
+        config = tf.compat.v1.ConfigProto()
         config.gpu_options.allow_growth = True
 
         # train the graph
-        with tf.Session(config=config) as session:
+        with tf.compat.v1.Session(config=config) as session:
             session.run(tf.initialize_all_variables())
             for epoch in range(self.num_epochs):
                 for step in range(num_steps):
@@ -90,7 +91,7 @@ class TrainModel:
                     feed_dict = {X: batch_data,
                                  Y_true: batch_labels}
                     _, loss = session.run(
-                        [optimizer, loss], feed_dict=feed_dict)
+                        [optimizer, loss_function], feed_dict=feed_dict)
                 print('Epoch %2d/%2d:\n\tTrain Loss = %.2f\t'
                       % (epoch+1, self.num_epochs, loss))
             if (self.save_model):
