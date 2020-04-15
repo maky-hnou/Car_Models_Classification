@@ -39,7 +39,7 @@ class ResNet:
             A tensor containing the weights.
 
         """
-        return tf.get_variable(name, shape=shape)
+        return tf.compat.v1.get_variable(name, shape=shape)
 
     def get_bias(self, shape, name):
         """Create bias.
@@ -324,7 +324,7 @@ class ResNet:
         input_shape = [None] + self.input_shape
         params = {}
 
-        X_input = tf.placeholder(
+        X_input = tf.compat.v1.placeholder(
             tf.float32, shape=input_shape, name='input_layer')
 
         X = self.zero_padding(X_input, (3, 3))
@@ -338,9 +338,9 @@ class ResNet:
                         padding='VALID', name='conv1')
         A_1_bn = self.batch_norm(A_1, name='bn_conv1')
         A_1_act = tf.nn.relu(A_1_bn)
-        A_1_pool = tf.nn.max_pool(A_1_act, ksize=(1, 3, 3, 1),
-                                  strides=(1, 2, 2, 1),
-                                  padding='VALID')
+        A_1_pool = tf.nn.max_pool2d(A_1_act, ksize=(1, 3, 3, 1),
+                                    strides=(1, 2, 2, 1),
+                                    padding='VALID')
         params['stage1']['bn'] = A_1_bn
         params['stage1']['act'] = A_1_act
         params['stage1']['pool'] = A_1_pool
@@ -406,9 +406,9 @@ class ResNet:
                                 stage=5, block='c')
 
         # Average Pooling
-        A_avg_pool = tf.nn.avg_pool(A_5_ib2, ksize=(1, 2, 2, 1),
-                                    strides=(1, 2, 2, 1),
-                                    padding='VALID', name='avg_pool')
+        A_avg_pool = tf.nn.avg_pool2d(A_5_ib2, ksize=(1, 2, 2, 1),
+                                      strides=(1, 2, 2, 1),
+                                      padding='VALID', name='avg_pool')
         params['avg_pool'] = A_avg_pool
 
         # Output Layer
